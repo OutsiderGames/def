@@ -1,11 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class BrickController : MonoBehaviour {
-	private float horizonSize = 0.96f;
-	private float verticalSize = 0.6f;
-	private float[] horizonPositions = {-2.4f, -1.44f, -0.48f, 0.48f, 1.44f, 2.4f};
-	private float[] verticalPositions = {-2.4f, -1.8f, -1.2f, -0.6f, 0.0f, 0.6f, 1.2f, 1.8f, 2.4f};
+public class BrickManager : MonoBehaviour {
 	private Color maxColor;
 	private Color minColor;
 
@@ -31,9 +27,9 @@ public class BrickController : MonoBehaviour {
 		float diff = max - min;
 		return diff * rate + min;
 	}
-	public void drawNewBrick() {
+	public void drawNewBrick(Vector3 position) {
 		// FIXME
 		GameObject brick = Instantiate(Resources.Load("Prefab/Brick" ,typeof(GameObject))) as GameObject;
-		brick.transform.position = new Vector3(-2.4f, 2.4f, 0.0f);
+		brick.transform.position = position;
 	}
 }
