@@ -12,12 +12,14 @@ public class TurnManager : MonoBehaviour {
 	private float[] yPositions = {-2.4f, -1.8f, -1.2f, -0.6f, 0.0f, 0.6f, 1.2f, 1.8f, 2.4f};
 	private float yTranslate = -0.6f;
 	private BrickManager brickManager;
+	private ScoreBoardManager scoreBoardManager;
 
 	private GameObject[] clearBrickObjects = {};
 
 	// Use this for initialization
 	void Start () {
 		brickManager = GameObject.FindObjectOfType<BrickManager> ();
+		scoreBoardManager = GameObject.FindObjectOfType<ScoreBoardManager> ();
 	}
 	
 	// Update is called once per frame
@@ -39,6 +41,7 @@ public class TurnManager : MonoBehaviour {
 		turn++;
 		drawNewBricks ();
 		moveDownBricks ();
+		scoreBoardManager.IncreaseScore ();
 	}
 	void drawNewBricks() {
 		int brickCount = getBrickCount ();
