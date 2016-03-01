@@ -74,13 +74,14 @@ public class BallManager : MonoBehaviour {
 		floorBallCount++;
 		flyingBallCount--;
 
-		bool removeBall = true;
-
+		// First Recieved Ball
 		if (nextBall == null) {
 			nextBall = ball;
-			removeBall = false;
+		} else {
+			ball.RemoveBall(nextBall);
 		}
 
+		// Last Received Ball
 		if (floorBallCount == currentBallCount) {
 			//Debug.Log("All Received");
 			startBall = nextBall;
@@ -90,10 +91,6 @@ public class BallManager : MonoBehaviour {
 			//Test for ball increase
 			floorBallCount++;
 			currentBallCount++;
-		}
-
-		if (removeBall == true) {
-			Destroy(ball.gameObject);
 		}
 	}
 }

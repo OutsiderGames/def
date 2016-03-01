@@ -12,12 +12,37 @@ public class Ball : MonoBehaviour {
 	}
 
 	private Rigidbody2D rigidbody2d;
+	private float disappearDurationSecond = 0.2f;
+
 	private Vector2 lastCollisionVelocity;
+	private Vector2 disappearStart;
+	private Vector2 disappearEnd;
+	private float disappearStartTime = 0;
 
 	void Start () {
 		rigidbody2d = GetComponent<Rigidbody2D>();
 		conflicted = false;
 		lastCollisionVelocity = Vector2.zero;
+	}
+
+	void Update () {
+		if (disappearStartTime == 0) {
+			return;
+		}
+
+		float disappearProgress = (Time.time - disappearStartTime) / disappearDurationSecond;
+		disappearProgress = Mathf.Min(disappearProgress, 1f);
+		transform.position = Vector2.Lerp(disappearStart, disappearEnd, disappearProgress);
+
+		if (disappearProgress == 1f) {
+			Destroy(gameObject);
+		}
+	}
+	
+	public void RemoveBall (Ball firstBall) {
+		disappearStart = transform.position;
+		disappearEnd = firstBall.transform.position;
+		disappearStartTime = Time.time;
 	}
 
 	void OnCollisionEnter2D (Collision2D collision) {
