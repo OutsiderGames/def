@@ -12,14 +12,12 @@ public class Ball : MonoBehaviour {
 	}
 
 	private Rigidbody2D rigidbody2d;
+	private Vector2 lastCollisionVelocity;
 
 	void Start () {
 		rigidbody2d = GetComponent<Rigidbody2D>();
 		conflicted = false;
-	}
-
-	void Update () {
-
+		lastCollisionVelocity = Vector2.zero;
 	}
 
 	void OnCollisionEnter2D (Collision2D collision) {
@@ -34,14 +32,18 @@ public class Ball : MonoBehaviour {
 			rigidbody2d.velocity = Vector2.zero;
 			ballManager.ReceiveBall(this);
 		}
+
+		if (rigidbody2d != null) {
+			lastCollisionVelocity = rigidbody2d.velocity;
+		}
 	}
 
 	void OnCollisionExit2D (Collision2D collision) {
 		//Debug.Log("[Ball]onCollisionExit");
 		// Prevent infinite horizontal moving
 		if (rigidbody2d.velocity.y == 0f) {
-			Debug.LogWarning("y Velocity is 0!!");
-			rigidbody2d.velocity = new Vector2(rigidbody2d.velocity.x, -0.3f);
+			Debug.LogWarning("y Velocity is 0!! " + lastCollisionVelocity);
+			rigidbody2d.velocity = new Vector2(rigidbody2d.velocity.x, -lastCollisionVelocity.y);
 		}
 	}
 
