@@ -23,6 +23,7 @@ public class Ball : MonoBehaviour {
 	void OnCollisionEnter2D (Collision2D collision) {
 		//Debug.Log("[Ball]onCollisionEnter");
 		GameObject gameObject = collision.gameObject;
+
 		if (gameObject.CompareTag("VerticalWall")) {
 			//PlaySound()
 		} else if (gameObject.CompareTag("HorizontalWall") || gameObject.CompareTag("Brick")) {
@@ -44,6 +45,11 @@ public class Ball : MonoBehaviour {
 		if (rigidbody2d.velocity.y == 0f) {
 			Debug.LogWarning("y Velocity is 0!! " + lastCollisionVelocity);
 			rigidbody2d.velocity = new Vector2(rigidbody2d.velocity.x, -lastCollisionVelocity.y);
+		}
+
+		if (collision.gameObject.CompareTag("Brick")) {
+			Brick brick = collision.gameObject.GetComponent<Brick>();
+			brick.decreaseHealth(1);
 		}
 	}
 

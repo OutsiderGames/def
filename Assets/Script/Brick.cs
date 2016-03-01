@@ -5,13 +5,13 @@ public class Brick : MonoBehaviour {
 	private SpriteRenderer spriteRenderer;
 	private int health;
 	private BrickManager brickManager;
-	private TurnManager ballManager;
+	private TurnManager turnManager;
 
 	void Start () {
 		brickManager = GameObject.FindObjectOfType<BrickManager> ();
-		ballManager = GameObject.FindObjectOfType<TurnManager> ();
+		turnManager = GameObject.FindObjectOfType<TurnManager> ();
 		spriteRenderer = GetComponentInChildren<SpriteRenderer> ();
-		health = ballManager.getTurn ();
+		health = turnManager.getTurn ();
 		MeshRenderer meshRenderer = GetComponentInChildren<MeshRenderer>();
 		meshRenderer.sortingLayerID = spriteRenderer.sortingLayerID;
 		meshRenderer.sortingOrder = spriteRenderer.sortingOrder + 1;
@@ -29,7 +29,7 @@ public class Brick : MonoBehaviour {
 		textMesh.text = health.ToString();
 	}
 	public Color getBrickColor(int health) {
-		return brickManager.getColor ((float)health / (float)ballManager.getTurn());
+		return brickManager.getColor ((float)health / (float)turnManager.getTurn());
 	}
 	public void decreaseHealth(int damage) {
 		health -= damage;
