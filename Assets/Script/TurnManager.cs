@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 
 public class TurnManager : MonoBehaviour {
+	private bool gameOver = false;
 	private int turn = 0;
 	private int maxBrick = 2;
 	private float xSize = 0.96f;
@@ -11,8 +12,10 @@ public class TurnManager : MonoBehaviour {
 	private float yPosition = 2.4f;
 	private float[] yPositions = {-2.4f, -1.8f, -1.2f, -0.6f, 0.0f, 0.6f, 1.2f, 1.8f, 2.4f};
 	private float yTranslate = -0.6f;
+	private float yDeadLine = -2.4f;
 	private BrickManager brickManager;
 	private ScoreBoardManager scoreBoardManager;
+	private GameObject gameOverPopup;
 
 	private GameObject[] clearBrickObjects = {};
 
@@ -20,10 +23,18 @@ public class TurnManager : MonoBehaviour {
 	void Start () {
 		brickManager = GameObject.FindObjectOfType<BrickManager> ();
 		scoreBoardManager = GameObject.FindObjectOfType<ScoreBoardManager> ();
+		GameObject[] popupObjects = GameObject.FindGameObjectsWithTag ("Popup");
+		foreach (GameObject popupObject in popupObjects) {
+			if (popupObject.name == "GameOverPopup") {
+				gameOverPopup = popupObject;
+				gameOverPopup.SetActive (false);
+			}
+		}
 	}
 	
 	// Update is called once per frame
 	void Update () {
+		// FIXME delete test
 		foreach (GameObject brickObject in clearBrickObjects) {
 			Brick brick = brickObject.GetComponent<Brick> ();
 			brick.decreaseHealth (1);
@@ -38,10 +49,14 @@ public class TurnManager : MonoBehaviour {
 		return turn;
 	}
 	public void increateTurn() {
+		if (gameOver) {
+			Debug.Log ("Already GameOver.");
+			return;
+		}
 		turn++;
 		drawNewBricks ();
 		moveDownBricks ();
-		scoreBoardManager.IncreaseScore ();
+		//scoreBoardManager.IncreaseScore ();
 	}
 	void drawNewBricks() {
 		int brickCount = getBrickCount ();
@@ -63,10 +78,25 @@ public class TurnManager : MonoBehaviour {
 		GameObject[] brickObjects = GameObject.FindGameObjectsWithTag ("Brick");
 		foreach (GameObject brickObject in brickObjects) {
 			brickObject.transform.Translate (new Vector3 (0.0f, yTranslate, 0.0f));
+			if (brickObject.transform.position.y <= yDeadLine) {
+				gameOver = true;
+			}
+		}
+		if (gameOver) {
+			gameOverPopup.SetActive (true);
 		}
 	}
 
 	public void testClearBrick() {
+		if (gameOver) {
+			return;
+		}
 		clearBrickObjects = GameObject.FindGameObjectsWithTag ("Brick");
+	}
+
+	public void restart() {
+		gameOver = false;
+		turn = 0;
+		maxBrick = 2;
 	}
 }
