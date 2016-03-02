@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class CameraAspectControl : MonoBehaviour {
+public class CameraAspectManager : MonoBehaviour {
 
 	public int orthographicSize;
 	float targetAspect = 9.0f / 16.0f;
