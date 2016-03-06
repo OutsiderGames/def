@@ -36,7 +36,7 @@ public class Brick : MonoBehaviour {
 		if (health > 0) {
 			refreshBrick ();
 		} else {
-			gameObject.SetActive (false);
+			Destroy (gameObject);
 		}
 	}
 }

@@ -6,7 +6,7 @@ public class SceneTest : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		SceneManager.LoadScene ("brick", LoadSceneMode.Additive);
+		SceneManager.LoadScene ("game", LoadSceneMode.Additive);
 	}
 	
 	// Update is called once per frame

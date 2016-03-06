@@ -64,7 +64,7 @@ public class TurnManager : MonoBehaviour {
 		turn++;
 		drawNewBricks ();
 		moveDownBricks ();
-		//scoreBoardManager.IncreaseScore ();
+		scoreBoardManager.IncreaseScore ();
 	}
 	void drawNewBricks() {
 		int brickCount = getBrickCount ();
