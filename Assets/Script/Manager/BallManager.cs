@@ -32,7 +32,6 @@ public class BallManager : MonoBehaviour {
 		startBall.ballManager = this;
 
 		turnManager = GameObject.FindObjectOfType<TurnManager> ();
-		turnManager.increateTurn ();
 	}
 	
 	void Update () {
