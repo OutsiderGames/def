@@ -68,8 +68,11 @@ public class Ball : MonoBehaviour {
 		//Debug.Log("[Ball]onCollisionExit");
 		// Prevent infinite horizontal moving
 		if (rigidbody2d.velocity.y == 0f) {
-			Debug.LogWarning("y Velocity is 0!! " + lastCollisionVelocity);
-			rigidbody2d.velocity = new Vector2(rigidbody2d.velocity.x, -lastCollisionVelocity.y);
+			float newVelocityY = lastCollisionVelocity.y;
+			if (newVelocityY == 0) {
+				newVelocityY = -0.8f;
+			}
+			rigidbody2d.velocity = new Vector2(rigidbody2d.velocity.x, newVelocityY);
 		}
 
 		if (collision.gameObject.CompareTag("Brick")) {
@@ -78,6 +81,10 @@ public class Ball : MonoBehaviour {
 		}
 	}
 
+	/*
+	 * Trigger 방식으로 공을 움직일 때 사용하는 코드.
+	 * 지금은 쓸모 없는 상태
+	 */
 	void OnTriggerEnter2D (Collider2D other) {
 		//Debug.Log("[Ball]OnTriggerEnter");
 		bool setConflicted = true;
