@@ -8,12 +8,13 @@ public class BallManager : MonoBehaviour {
 	private int floorBallCount;
 	private int flyingBallCount;
 
-	private float ballStartPositionX;
-	private float ballStartPositionY;
-	private Ball ballPrefab;
-	private float ballFireIntervalSecond;
-	private float ballSpeed;
+	public float ballStartPositionX = 0f;
+	public float ballStartPositionY = -2.79f;
+	public float ballFireIntervalSecond = 0.06f;
+	public float ballSpeed = 7f;
 
+	private Ball ballPrefab;
+	
 	private Ball startBall;
 	private Ball nextBall;
 
@@ -22,11 +23,7 @@ public class BallManager : MonoBehaviour {
 	void Start () {
 		floorBallCount = currentBallCount;
 		flyingBallCount = 0;
-		ballStartPositionX = 0f;
-		ballStartPositionY = -2.79f;
-		ballFireIntervalSecond = 0.06f;
 		ballPrefab = Resources.Load("Prefab/Ball", typeof(Ball)) as Ball;
-		ballSpeed = 7f;
 
 		startBall = Instantiate(ballPrefab, new Vector3(ballStartPositionX, ballStartPositionY), Quaternion.identity) as Ball;
 		startBall.ballManager = this;
