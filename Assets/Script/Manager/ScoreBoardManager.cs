@@ -22,8 +22,12 @@ public class ScoreBoardManager : MonoBehaviour {
 	}
 
 	private void updateScore() {
-		scoreObject.text = score + "";
-		bsetScoreObject.text = bestScore + "";
+		if (scoreObject != null) {
+			scoreObject.text = score + "";
+		}
+		if (bsetScoreObject != null) {
+			bsetScoreObject.text = bestScore + "";
+		}
 	}
 
 	public void IncreaseScore() {

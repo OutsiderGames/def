@@ -7,28 +7,32 @@ public class BallManager : MonoBehaviour {
 
 	private bool canFire = true;
 	private int flyingBallCount = 0;
+	private float maxFireDegreeCos;
+	private Vector3 maxFireLeftDirection;
+	private Vector3 maxFireRightDirection;
 
 	public float ballStartPositionX = 0f;
 	public float ballStartPositionY = -2.79f;
 	public float ballFireIntervalSecond = 0.06f;
 	public float ballSpeed = 8f;
 	public int maxBallCount = 100;
+	public float maxFireDegree = 80;
 
 	private Ball ballPrefab;
 	
-	private Ball startBall;
-	private Ball nextBall;
-
 	private Ball[] balls;
 	private Ball firstFlooredBall;
+	private Vector3 lastInputPosition;
+	private Vector3 fireDirection;
 	
 	private TurnManager turnManager;
-
+	
 	void Start () {
 		ballPrefab = Resources.Load("Prefab/Ball", typeof(Ball)) as Ball;
 
-		//startBall = Instantiate(ballPrefab, new Vector3(ballStartPositionX, ballStartPositionY), Quaternion.identity) as Ball;
-		//startBall.ballManager = this;
+		maxFireDegreeCos = Mathf.Cos(maxFireDegree * Mathf.Deg2Rad);
+		maxFireRightDirection = new Vector3(Mathf.Sin(Mathf.Deg2Rad * maxFireDegree), Mathf.Cos(Mathf.Deg2Rad * maxFireDegree), 0).normalized;
+		maxFireLeftDirection = new Vector3(-maxFireRightDirection.x, maxFireRightDirection.y, 0).normalized;
 
 		balls = new Ball[maxBallCount];
 		int ballsToInstantiate = Mathf.Min(currentBallCount, maxBallCount);
@@ -44,30 +48,48 @@ public class BallManager : MonoBehaviour {
 		if (canFire == false) {
 			return;
 		}
-
+		
 		if (Input.GetMouseButton(0)) {
 			Vector3 toPosition = Input.mousePosition;
-			//Debug.Log("X : " + toPosition.x + " Y : " + toPosition.y);
-		}
 
-		if (Input.GetMouseButtonUp(0)) {
-			Vector3 toPosition = Input.mousePosition;
+			if (lastInputPosition == toPosition) {
+				return;
+			} else {
+				lastInputPosition = toPosition;
+			}
+
+			Vector3 from = balls[0].transform.position;
+
 			toPosition.z = 1;
-
 			toPosition = Camera.main.ScreenToWorldPoint(toPosition);
 			toPosition.z = 0;
 
-			StartCoroutine(FireBalls(toPosition));
+			Vector3 direction = (toPosition - from).normalized;
+			float dotProductValue = Vector3.Dot(direction, Vector3.up);
+
+			Debug.DrawRay(from, direction * 4, Color.cyan);
+			//Debug.Log(direction);
+			if (dotProductValue < maxFireDegreeCos) {
+				//Debug.Log("TO LOW!!! ");
+				direction = direction.x > 0 ? maxFireRightDirection : maxFireLeftDirection;
+				Debug.DrawRay(from, direction * 4, Color.green);
+			}
+
+			fireDirection = direction;
+		}
+
+		if (Input.GetMouseButtonUp(0)) {
+			lastInputPosition = lastInputPosition.normalized;
+			StartCoroutine(FireBalls(fireDirection));
 		}
 	}
 
-	IEnumerator FireBalls(Vector3 to) {
+	IEnumerator FireBalls(Vector3 direction) {
 		canFire = false;
 		firstFlooredBall = null;
 
-		Vector3 from = balls[0].transform.position;
-		Vector3 direction = (to - from).normalized * ballSpeed;
-
+		direction = direction * ballSpeed;
+		Debug.Log("Direction : " + direction);
 		foreach (Ball ball in balls) {
 			if (ball == null) {
 				break;
