@@ -24,9 +24,9 @@ public class CameraAspectManager : MonoBehaviour {
 	private void ChangeCameraOrthographicSize() 
 	{
 		float windowAspect = (float)Screen.width / (float)Screen.height;
-		Debug.Log ("windowaspect : " + windowAspect);
+		// Debug.Log ("windowaspect : " + windowAspect);
 		float scaleHeight = windowAspect / targetAspect;
-		Debug.Log ("scaleheight : " + scaleHeight);
+		// Debug.Log ("scaleheight : " + scaleHeight);
 		Camera camera = GetComponent<Camera>();
 		if (scaleHeight < 1.0f) 
 		{  
@@ -38,11 +38,11 @@ public class CameraAspectManager : MonoBehaviour {
 	{
 		// determine the game window's current aspect ratio
 		float windowAspect = (float)Screen.width / (float)Screen.height;
-		Debug.Log ("windowaspect : " + windowAspect);
+		// Debug.Log ("windowaspect : " + windowAspect);
 
 		// current viewport height should be scaled by this amount
 		float scaleHeight = windowAspect / targetAspect;
-		Debug.Log ("scaleheight : " + scaleHeight);
+		// Debug.Log ("scaleheight : " + scaleHeight);
 
 		// obtain camera component so we can modify its viewport
 		Camera camera = GetComponent<Camera> ();

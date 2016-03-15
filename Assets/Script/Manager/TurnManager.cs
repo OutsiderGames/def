@@ -16,6 +16,7 @@ public class TurnManager : MonoBehaviour {
 	private BrickManager brickManager;
 	private ScoreBoardManager scoreBoardManager;
 	private GameObject gameOverPopup;
+	private GameObject startPopup;
 
 	private GameObject[] clearBrickObjects = {};
 
@@ -28,6 +29,8 @@ public class TurnManager : MonoBehaviour {
 			if (popupObject.name == "GameOverPopup") {
 				gameOverPopup = popupObject;
 				gameOverPopup.SetActive (false);
+			} else if (popupObject.name == "StartPopup") {
+				startPopup = popupObject;
 			}
 		}
 	}
@@ -48,6 +51,11 @@ public class TurnManager : MonoBehaviour {
 	public int getTurn() {
 		return turn;
 	}
+	public void startGame() {
+		increateTurn ();
+		startPopup.SetActive (false);
+		Debug.Log ("Game Start.");
+	}
 	public void increateTurn() {
 		if (gameOver) {
 			Debug.Log ("Already GameOver.");
@@ -56,7 +64,7 @@ public class TurnManager : MonoBehaviour {
 		turn++;
 		drawNewBricks ();
 		moveDownBricks ();
-		//scoreBoardManager.IncreaseScore ();
+		scoreBoardManager.IncreaseScore ();
 	}
 	void drawNewBricks() {
 		int brickCount = getBrickCount ();

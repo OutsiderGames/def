@@ -5,100 +5,159 @@ public class BallManager : MonoBehaviour {
 
 	public int currentBallCount;
 
-	private int floorBallCount;
-	private int flyingBallCount;
+	private bool canFire = true;
+	private int flyingBallCount = 0;
+	private float maxFireDegreeCos;
+	private Vector3 maxFireLeftDirection;
+	private Vector3 maxFireRightDirection;
 
-	private float ballStartPositionX;
-	private float ballStartPositionY;
+	public float ballStartPositionX = 0f;
+	public float ballStartPositionY = -2.79f;
+	public float ballFireIntervalSecond = 0.06f;
+	public float ballSpeed = 8f;
+	public int maxBallCount = 100;
+	public float maxFireDegree = 80;
+
 	private Ball ballPrefab;
-	private float ballFireIntervalSecond;
-	private float ballSpeed;
-
-	private Ball startBall;
-	private Ball nextBall;
-
+	
+	private Ball[] balls;
+	private Ball firstFlooredBall;
+	private Vector3 lastInputPosition;
+	private Vector3 fireDirection;
+	
 	private TurnManager turnManager;
-
+	
 	void Start () {
-		floorBallCount = currentBallCount;
-		flyingBallCount = 0;
-		ballStartPositionX = 0f;
-		ballStartPositionY = -2.79f;
-		ballFireIntervalSecond = 0.06f;
 		ballPrefab = Resources.Load("Prefab/Ball", typeof(Ball)) as Ball;
-		ballSpeed = 7f;
 
-		startBall = Instantiate(ballPrefab, new Vector3(ballStartPositionX, ballStartPositionY), Quaternion.identity) as Ball;
-		startBall.ballManager = this;
+		maxFireDegreeCos = Mathf.Cos(maxFireDegree * Mathf.Deg2Rad);
+		maxFireRightDirection = new Vector3(Mathf.Sin(Mathf.Deg2Rad * maxFireDegree), Mathf.Cos(Mathf.Deg2Rad * maxFireDegree), 0).normalized;
+		maxFireLeftDirection = new Vector3(-maxFireRightDirection.x, maxFireRightDirection.y, 0).normalized;
 
-		turnManager = GameObject.FindObjectOfType<TurnManager> ();
-		turnManager.increateTurn ();
+		balls = new Ball[maxBallCount];
+		int ballsToInstantiate = Mathf.Min(currentBallCount, maxBallCount);
+		for (int i = 0; i < ballsToInstantiate; i++) {
+			balls[i] = Instantiate(ballPrefab, new Vector3(ballStartPositionX, ballStartPositionY), Quaternion.identity) as Ball;
+			balls[i].ballManager = this;
+		}
+
+		turnManager = GameObject.FindObjectOfType<TurnManager>();
 	}
 	
 	void Update () {
-		if (floorBallCount != currentBallCount) {
+		if (canFire == false) {
 			return;
 		}
-
+		
 		if (Input.GetMouseButton(0)) {
 			Vector3 toPosition = Input.mousePosition;
-			//Debug.Log("X : " + toPosition.x + " Y : " + toPosition.y);
-		}
-		if (Input.GetMouseButtonUp(0)) {
-			Vector3 toPosition = Input.mousePosition;
-			toPosition.z = 1;
 
+			if (lastInputPosition == toPosition) {
+				return;
+			} else {
+				lastInputPosition = toPosition;
+			}
+
+			Vector3 from = balls[0].transform.position;
+
+			toPosition.z = 1;
 			toPosition = Camera.main.ScreenToWorldPoint(toPosition);
 			toPosition.z = 0;
 
-			StartCoroutine(FireBalls(toPosition));
+			Vector3 direction = (toPosition - from).normalized;
+			float dotProductValue = Vector3.Dot(direction, Vector3.up);
+
+			Debug.DrawRay(from, direction * 4, Color.cyan);
+			//Debug.Log(direction);
+			if (dotProductValue < maxFireDegreeCos) {
+				//Debug.Log("TO LOW!!! ");
+				direction = direction.x > 0 ? maxFireRightDirection : maxFireLeftDirection;
+				Debug.DrawRay(from, direction * 4, Color.green);
+			}
+
+			fireDirection = direction;
+		}
+
+		if (Input.GetMouseButtonUp(0)) {
+			lastInputPosition = lastInputPosition.normalized;
+			StartCoroutine(FireBalls(fireDirection));
 		}
 	}
 
-	IEnumerator FireBalls(Vector3 to) {
-		Vector3 from = startBall.transform.position;
-		Vector3 direction = (to - from).normalized * ballSpeed;
+	IEnumerator FireBalls(Vector3 direction) {
+		canFire = false;
+		firstFlooredBall = null;
 
-		for (int i = currentBallCount - 1; i >= 0; i--) {
-			Ball ball = (i == 0) ? startBall : Instantiate(startBall) as Ball;
+		direction = direction * ballSpeed;
+		Debug.Log("Direction : " + direction);
+		foreach (Ball ball in balls) {
+			if (ball == null) {
+				break;
+			}
+
+			ball.damage = 1;
+			ball.conflicted = false;
 			Rigidbody2D rigidbody = ball.GetComponent<Rigidbody2D>();
 
 			rigidbody.velocity = direction;
 
-			ball.ballManager = this;
-
-			floorBallCount--;
 			flyingBallCount++;
 
 			yield return new WaitForSeconds(ballFireIntervalSecond);
+		}
+		
+		yield return StartCoroutine(WaitBallReceive());
+		//Maybe all ball touched floor
+		//But not move to first floored ball, wait more
+		yield return new WaitForSeconds(0.4f);
+
+		turnManager.increateTurn();
+		IncreaseBallCount(1); //Test Purpose
+
+		canFire = true;
+	}
+
+	IEnumerator WaitBallReceive() {
+		while (flyingBallCount != 0) {
+			yield return new WaitForSeconds(0.1f);
 		}
 	}
 
 	public void ReceiveBall(Ball ball) {
 		//Debug.Log("Recieve " + ball);
-		floorBallCount++;
 		flyingBallCount--;
 
 		// First Recieved Ball
-		if (nextBall == null) {
-			nextBall = ball;
+		if (firstFlooredBall == null) {
+			firstFlooredBall = ball;
 		} else {
-			ball.RemoveBall(nextBall);
+			ball.MoveToOtherBall(firstFlooredBall);
+		}
+	}
+
+	public void IncreaseBallCount(int count) {
+		int ballsToCreate = count;
+		
+		if (currentBallCount + count > maxBallCount) {
+			ballsToCreate = maxBallCount - currentBallCount;
 		}
 
-		// Last Received Ball
-		if (floorBallCount == currentBallCount) {
-			//Debug.Log("All Received");
-			startBall = nextBall;
-			startBall.conflicted = false;
-			nextBall = null;
+		int ballCreated = 0;
+		Vector3 position = balls[0].transform.position;
+		for (int i = 0; i < maxBallCount; i++) {
+			if (balls[i] != null) {
+				continue;
+			}
 
+			balls[i] = Instantiate(ballPrefab, position, Quaternion.identity) as Ball;
+			balls[i].ballManager = this;
 
-			turnManager.increateTurn ();
-
-			//Test for ball increase
-			floorBallCount++;
-			currentBallCount++;
+			ballCreated++;
+			if (ballCreated == ballsToCreate) {
+				break;
+			}
 		}
+
+		currentBallCount += count;
 	}
 }
