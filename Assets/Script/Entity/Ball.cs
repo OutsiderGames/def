@@ -53,23 +53,24 @@ public class Ball : MonoBehaviour {
 		//Debug.Log("[Ball]onCollisionEnter");
 		GameObject gameObject = collision.gameObject;
 
-		if (gameObject.CompareTag("VerticalWall")) {
+		if (gameObject.CompareTag ("VerticalWall")) {
 			//PlaySound()
-		} else if (gameObject.CompareTag("HorizontalWall") || gameObject.CompareTag("Brick")) {
+		} else if (gameObject.CompareTag ("HorizontalWall") || gameObject.CompareTag ("Brick")) {
 			//PlaySound()
 			conflicted = true;
-		} else if (gameObject.CompareTag("Floor") && conflicted) {
+		} else if (gameObject.CompareTag ("Floor") && conflicted) {
 			rigidbody2d.velocity = Vector2.zero;
-			ballManager.ReceiveBall(this);
+			ballManager.ReceiveBall (this);
 		}
 
-		if (rigidbody2d != null) {
+		if (rigidbody2d != null ) {
 			lastCollisionVelocity = rigidbody2d.velocity;
 		}
 	}
 
 	void OnCollisionExit2D (Collision2D collision) {
-		//Debug.Log("[Ball]onCollisionExit");
+//		Debug.Log("[Ball]onCollisionExit");
+
 		// Prevent infinite horizontal moving
 		if (rigidbody2d.velocity.y == 0f) {
 			float newVelocityY = lastCollisionVelocity.y;
@@ -87,11 +88,16 @@ public class Ball : MonoBehaviour {
 
 	/*
 	 * Trigger 방식으로 공을 움직일 때 사용하는 코드.
-	 * 지금은 쓸모 없는 상태
+	 * 지금은 쓸모 없는 상태 -> use it for BonusBall
 	 */
 	void OnTriggerEnter2D (Collider2D other) {
 		//Debug.Log("[Ball]OnTriggerEnter");
 		bool setConflicted = true;
+
+		if (other.CompareTag ("BonusBall")) {
+			Debug.Log("BonusBall!");
+			ballManager.GetBonusBall ();
+		}
 
 		if (other.CompareTag("VerticalWall")) {
 			setConflicted = false;

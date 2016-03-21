@@ -20,6 +20,8 @@ public class TurnManager : MonoBehaviour {
 
 	private GameObject[] clearBrickObjects = {};
 
+	private BonusBall bonusBallPrefab;
+
 	// Use this for initialization
 	void Start () {
 		brickManager = GameObject.FindObjectOfType<BrickManager> ();
@@ -33,6 +35,8 @@ public class TurnManager : MonoBehaviour {
 				startPopup = popupObject;
 			}
 		}
+
+		bonusBallPrefab = Resources.Load("Prefab/BonusBall", typeof(BonusBall)) as BonusBall; 
 	}
 	
 	// Update is called once per frame
@@ -60,22 +64,31 @@ public class TurnManager : MonoBehaviour {
 		if (gameOver) {
 			Debug.Log ("Already GameOver.");
 			return;
+		};
+
+		int[] xPositions = { 0, 1, 2, 3, 4, 5 };
+		List<int> tmpXPositionCandidate = new List<int> (xPositions);
+		for (int i = 0; i < tmpXPositionCandidate.Count; i++) {
+			int temp = tmpXPositionCandidate[i];
+			int randomIndex = Random.Range(i, tmpXPositionCandidate.Count);
+			tmpXPositionCandidate[i] = tmpXPositionCandidate[randomIndex];
+			tmpXPositionCandidate[randomIndex] = temp;
 		}
+		LinkedList<int> xPositionCandidate = new LinkedList<int> (tmpXPositionCandidate);
+
 		turn++;
-		drawNewBricks ();
-		moveDownBricks ();
 		scoreBoardManager.IncreaseScore ();
+		drawNewBricks (xPositionCandidate);
+		moveDownBricks ();
+		drawNewBonusBall (xPositionCandidate);
+		moveDownBonusBalls ();
 	}
-	void drawNewBricks() {
+	void drawNewBricks(LinkedList<int> xPositionCandidate) {
 		int brickCount = getBrickCount ();
-		HashSet<int> indexSet = new HashSet<int> ();
 		for (int i = 0; i < brickCount; i++) {
-			int xIndex = Random.Range (0, 6);
-			if (indexSet.Contains(xIndex)) {
-				continue;
-			}
-			indexSet.Add (xIndex);
+			int xIndex = xPositionCandidate.First.Value;
 			brickManager.drawNewBrick (new Vector3(xPositions[xIndex], yPosition, 0.0f));
+			xPositionCandidate.RemoveFirst ();
 		}
 	}
 	int getBrickCount() {
@@ -92,6 +105,19 @@ public class TurnManager : MonoBehaviour {
 		}
 		if (gameOver) {
 			gameOverPopup.SetActive (true);
+		}
+	}
+	void drawNewBonusBall(LinkedList<int> xPositionCandidate) {
+		int xIndex = xPositionCandidate.First.Value;
+		Instantiate (bonusBallPrefab, new Vector3 (xPositions [xIndex], yPosition, 0.0f), Quaternion.identity);
+	}
+	void moveDownBonusBalls() {
+		GameObject[] bonusBalls = GameObject.FindGameObjectsWithTag ("BonusBall");
+		foreach (GameObject bonusBall in bonusBalls) {
+			bonusBall.transform.Translate (new Vector3 (0.0f, yTranslate, 0.0f));
+			if (bonusBall.transform.position.y <= yDeadLine) {
+				// TODO ?
+			}
 		}
 	}
 
