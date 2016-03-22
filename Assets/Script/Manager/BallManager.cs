@@ -26,6 +26,8 @@ public class BallManager : MonoBehaviour {
 	private Vector3 fireDirection;
 	
 	private TurnManager turnManager;
+
+	private int getNumberOfBallsOnThisFire = 0; // onetime value
 	
 	void Start () {
 		ballPrefab = Resources.Load("Prefab/Ball", typeof(Ball)) as Ball;
@@ -112,7 +114,8 @@ public class BallManager : MonoBehaviour {
 		yield return new WaitForSeconds(0.4f);
 
 		turnManager.increateTurn();
-		IncreaseBallCount(1); //Test Purpose
+//		IncreaseBallCount(1); //Test Purpose
+		_IncreaseBall();
 
 		canFire = true;
 	}
@@ -159,5 +162,17 @@ public class BallManager : MonoBehaviour {
 		}
 
 		currentBallCount += count;
+	}
+		
+	public void GetBonusBall() {
+		getNumberOfBallsOnThisFire ++;
+	}
+
+	private void _IncreaseBall() {
+		if (getNumberOfBallsOnThisFire > 0) {
+			IncreaseBallCount (getNumberOfBallsOnThisFire);
+		}
+
+		getNumberOfBallsOnThisFire = 0;
 	}
 }
